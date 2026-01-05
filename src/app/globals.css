@@ -125,3 +125,9 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Remove backticks from inline code in prose */
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::before,
+.prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
+  content: none;
+}

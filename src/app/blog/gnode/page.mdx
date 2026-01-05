@@ -1,0 +1,71 @@
+export const metadata = {
+  title: "gnode: IaC for a single-node Kubernetes cluster on Azure",
+  description: "A blog post about using Terraform, Azure, and Cloudflare to deploy a single node Kubernetes cluster and exposing it to the internet.",
+};
+
+# gnode: IaC for a single-node Kubernetes cluster on Azure
+2025-23-12
+
+## Motivation
+A lot of what I know today about Software Engineering, Cloud Infrastructure, Kubernetes, Linux, etc came from building my own physical homelab
+a few years ago. I bought a couple of Dell Optiplex workstations from Craigslist for $150 each and wired them up via Ethernet to my home router.
+Then I went through the process of:
+- Installing Ubuntu Server via a USB stick I imaged
+- Configuring static IPs for each node in my home network
+- Writing Ansible scripts to configure them and install Kubernetes
+- Implementing a GitOps pipeline to deploy my own Helm charts and apps to it
+- Exposing it to the internet under my domain gerardosalazar.com using CloudFlare proxys
+
+Unfortunately, when I moved to San Francisco in May of 2025 I had to leave my homelab behind. I realized that beyond the learning aspect, having
+some persistent machines to host random stuff on is really convenient for side projects and the cloud is really expensive. Fortunately, as a LinkedIn
+employee I get $150/mo in Azure credits. I set out to see what the best homelab I could build on Azure for that $150/mo could be. Thus, gnode was born.
+
+## Design and Results
+gnode is just two Terraform modules and a bash script that:
+- Deploys a single VM on Azure with the required networking (VNet, Subnet, NSG, Public IP, Security Rules)
+- Installs k3s
+- Installs the `kube-prometheus-stack` Helm chart for monitoring
+- Installs `cert-manager` to get TLS certs
+- Points a (Cloudflare registered) domain at the node
+- (Optionally) installs `ImagePullSecrets` for an Azure Container Registry
+- (Optionally) adds GitHub Actions IPs to the NSGs for the VM
+
+To deploy the whole thing you just need to run the `gnode.sh` script. It prompts you to enter the required variables and secrets then performs the required `terraform apply` steps.
+
+The Terraform modules also create a local kubeconfig and configure the local IP in the NSG for the VM so that as soon as the deployment is done
+you have access to the "cluster" from your local machine via standard `kubectl`. If you move around you might need to manually add more IPs to the NSG on port 6443. 
+
+### Why Kubernetes
+A lot of people will probably wonder why Kubernetes is worth the trouble if it's only running on a single node. A simple answer is: because I like it. A less simple answer is:
+it provides a declarative API for managing infrastructure. This is convenient at every scale, from a single node to a hundred-thousand nodes.
+Helm is also a huge benefit, it really is a "package manager" for Kubernetes and makes installing large collections of software (like the monitoring stack in gnode) trivial. You'd have a hard time convincing me that 
+it's any easier with Docker Compose or shell scripts.
+
+### Performance
+Currently, this website is hosted on my personal `gnode` instance with a VM SKU of `Standard_D4s_v3`. This SKU has 4 vCPUs and 16GB RAM. It's kind of crazy
+that's all you can get in the cloud for about $150/mo. Nonetheless, it seems to be plenty to run `gnode` and atleast a few of your own deployments provided they are low-traffic.
+Before deploying anything extra the whole setup sits at about 5% CPU utilization and uses 1GB of RAM which leaves quite a bit of overhead to play with.
+
+In addition to this blog, I plan on deploying ClickHouse and hooking it up to the Grafana instance that comes with `kube-prometheus-stack` to track metrics for training jobs from 
+my ML project `gaia`. 
+
+## Learnings
+`gnode` originally started off as a single Terraform module but I ran into a chicken-and-egg problem when trying to deploy the Helm charts.
+The `kubernetes` Terraform provider requires a valid `kubeconfig` to be present to initialize properly. Of course, there is no valid `kubeconfig` until
+the node is deployed and Kubernetes is installed on it. I first tried configuring a dummy `kubeconfig` but kept running into issues and decided that
+the cleanest approach would be to split everything into two modules: `infra` and `apps`. In retrospect, this was probably the better implementation to begin with
+as its a cleaner seperation of concerns.
+
+I want CI/CD pipelines for the apps I decide to deploy to `gnode`. The simplest way to accomplish that is via `kubectl apply` within `GitHub Actions`. 
+The issue is that you don't really want to publically expose port 6443 (`kube-api-server`) on your cluster since its vulnerable to attacks. The answer is
+to just allow GH Actions IPs withing the NSG to access port 6443. What I came to realize is that the list of GH Actions IP CIDR blocks is over 6000 entries long.
+This presents an issue because Azure NSGs have a 4000 address limit on Security Rules. I compromised by taking most of the IPv4 addresses and a few IPv6 addresses.
+This implies to me that if you land on a bad runner then the deployment will fail. For a low-stakes situation like this case I'm fine with that and will just rerun the job
+in that case to avoid introducing additional complexity. I wanted to keep `gnode` as simple as possible so adding e.g. OIDC or similar machinery for auth seemed like overkill.
+
+## References
+[gnode repo](https://github.com/Salazar-99/gnode)
+
+[k3s docs](https://docs.k3s.io/)
+
+[My original homelab repo](https://github.com/Salazar-99/clusty-dusty)

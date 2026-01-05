@@ -6,7 +6,6 @@ on:
       - master
 
 env:
-  ACR_REGISTRY: ${{ secrets.ACR_REGISTRY }}  # e.g., myregistry.azurecr.io
   IMAGE_NAME: gblog
 
 jobs:
@@ -33,7 +32,7 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          IMAGE_TAG="${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
+          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
           
           docker build -t $IMAGE_TAG .
           docker push $IMAGE_TAG
@@ -46,18 +45,18 @@ jobs:
       - name: Configure kubectl
         run: |
           mkdir -p $HOME/.kube
-          echo "${{ secrets.KUBECONFIG }}" | base64 -d > $HOME/.kube/config
+          echo "${{ secrets.KUBECONFIG }}" > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
 
       - name: Update deployment image
         run: |
-          IMAGE_TAG="${{ env.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
+          IMAGE_TAG="${{ secrets.ACR_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
           
-          kubectl set image deployment/gblog gblog=$IMAGE_TAG
+          kubectl set image deployment/gblog gblog=$IMAGE_TAG -n apps
           
           echo "Updated deployment to use: $IMAGE_TAG"
 
       - name: Wait for rollout
         run: |
-          kubectl rollout status deployment/gblog --timeout=120s
+          kubectl rollout status deployment/gblog -n apps --timeout=120s
 

@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gblog
+  namespace: apps
   labels:
     app: gblog
 spec:
@@ -57,7 +58,8 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gblog
+  name: gerardosalazar-com-service
+  namespace: apps
   labels:
     app: gblog
 spec:
@@ -69,31 +71,4 @@ spec:
       port: 80
       targetPort: 8080
       protocol: TCP
-
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: gblog
-  labels:
-    app: gblog
-  annotations:
-    nginx.ingress.kubernetes.io/ssl-redirect: "true"
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: gerardosalazar.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: gblog
-                port:
-                  number: 80
-  tls:
-    - hosts:
-        - gerardosalazar.com
-      secretName: gblog-tls
 

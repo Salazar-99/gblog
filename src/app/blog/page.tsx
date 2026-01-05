@@ -12,10 +12,10 @@ interface BlogPost {
 
 const blogPosts: BlogPost[] = [
   {
-    slug: "test",
-    title: "Getting Started with Next.js",
-    description: "Learn the fundamentals of Next.js and how to build modern web applications with React, server-side rendering, and static site generation.",
-    date: "2024-01-15",
+    slug: "gnode",
+    title: "gnode: IaC for a single-node Kubernetes cluster on Azure",
+    description: "Having a personal kubernetes cluster to deploy your projects and use as a lab is really convenient. gnode makes deploying a small cluster and exposing it to the internet trivial. In this blog I describe how it works, how to use it, and some of the annoying parts of cloud infrastructure I faced along the way.",
+    date: "2025-12-23",
   }
 ];
 
