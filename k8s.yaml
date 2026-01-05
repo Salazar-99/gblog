@@ -15,13 +15,15 @@ spec:
       labels:
         app: gblog
     spec:
+      imagePullSecrets:
+        - name: acr-secret
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup: 1001
       containers:
         - name: gblog
-          image: gblog:latest
+          image: gimages.azurecr.io/gblog:20260105-043438
           ports:
             - name: http
               containerPort: 8080
