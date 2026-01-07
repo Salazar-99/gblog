@@ -33,7 +33,9 @@ gnode is just two Terraform modules and a bash script that:
 To deploy the whole thing you just need to run the `gnode.sh` script. It prompts you to enter the required variables and secrets then performs the required `terraform apply` steps.
 
 The Terraform modules also create a local kubeconfig and configure the local IP in the NSG for the VM so that as soon as the deployment is done
-you have access to the "cluster" from your local machine via standard `kubectl`. If you move around you might need to manually add more IPs to the NSG on port 6443. 
+you have access to the "cluster" from your local machine via standard `kubectl`. If you move around you might need to manually add more IPs to the NSG on port 6443.
+
+I also use Cloudflare as my domain registrar mainly because they are so simple to use, have a good Terraform provider, and make it easy to add a proxy so that the server's IP is not easily visible.
 
 ### Why Kubernetes
 A lot of people will probably wonder why Kubernetes is worth the trouble if it's only running on a single node. A simple answer is: because I like it. A less simple answer is:

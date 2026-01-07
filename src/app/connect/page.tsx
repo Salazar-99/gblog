@@ -13,7 +13,7 @@ export default function ConnectPage() {
         >
           <LinkedInIcon className="h-20 w-20" />
         </a>
-        <a
+        {/* <a
           href="https://x.com/g_spyglass"
           target="_blank"
           rel="noopener noreferrer"
@@ -21,7 +21,7 @@ export default function ConnectPage() {
           aria-label="X"
         >
           <XIcon className="h-20 w-20" />
-        </a>
+        </a> */}
         <a
           href="https://github.com/Salazar-99"
           target="_blank"
