@@ -5,9 +5,7 @@ import { useState, useEffect } from "react";
 export default function Home() {
   const entries = [
     "Software Engineering",
-    "Machine Learning",
-    "Robotics",
-    "Quantum Computing",
+    "Machine Learning"
   ];
   const fullText = entries.join(". ") + ".";
   const [displayedText, setDisplayedText] = useState("");

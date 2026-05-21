@@ -142,3 +142,15 @@
 .prose :where(code):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
   content: none;
 }
+
+/* Use literal quotes in MDX; don't add extra open/close marks via typography */
+.prose :where(blockquote p:first-of-type):not(:where([class~="not-prose"], [class~="not-prose"] *))::before,
+.prose :where(blockquote p:last-of-type):not(:where([class~="not-prose"], [class~="not-prose"] *))::after {
+  content: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram-flow-dot {
+    opacity: 0;
+  }
+}

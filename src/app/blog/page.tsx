@@ -3,21 +3,7 @@
 import Link from "next/link";
 import { useState, useMemo } from "react";
 
-interface BlogPost {
-  slug: string;
-  title: string;
-  description: string;
-  date: string;
-}
-
-const blogPosts: BlogPost[] = [
-  {
-    slug: "gnode",
-    title: "gnode: IaC for a single-node Kubernetes cluster on Azure",
-    description: "Having a personal kubernetes cluster to deploy your projects and use as a lab is really convenient. gnode makes deploying a small cluster and exposing it to the internet trivial. In this blog I describe how it works, how to use it, and some of the annoying parts of cloud infrastructure I faced along the way.",
-    date: "2025-12-23",
-  }
-];
+import { blogPosts } from "@/lib/blog-posts";
 
 export default function BlogPage() {
   const [searchQuery, setSearchQuery] = useState("");

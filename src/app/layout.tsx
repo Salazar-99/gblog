@@ -1,18 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { ThemeProvider } from "@/components/theme-provider";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+import { siteUrl } from "@/lib/site";
+import { GeistMono, GeistSans } from "@/lib/site-fonts";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -21,8 +13,17 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Gerardo Salazar ",
+  metadataBase: siteUrl,
+  title: "Gerardo Salazar",
   description: "Gerardo Salazar's personal site",
+  openGraph: {
+    siteName: "Gerardo Salazar",
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
@@ -33,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${inter.variable} antialiased`}
+        className={`${GeistSans.variable} ${GeistMono.variable} ${inter.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"
