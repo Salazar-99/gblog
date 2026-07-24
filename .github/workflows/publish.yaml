@@ -13,7 +13,9 @@ env:
 
 jobs:
   build-and-publish:
-    runs-on: ubuntu-latest
+    # The k8s node is arm64, so build natively on an arm64 runner rather than
+    # emulating under QEMU. Free for public repos.
+    runs-on: ubuntu-24.04-arm
 
     permissions:
       contents: read
@@ -45,6 +47,14 @@ jobs:
         with:
           context: .
           push: true
+          platforms: linux/arm64
+          # Buildx attaches provenance/SBOM attestations by default, which turns
+          # the push into an OCI image index with an `unknown/unknown` platform
+          # entry. The node's containerd cannot resolve that and fails the pull
+          # with "no match for platform in manifest". Disabling both emits a
+          # plain single-platform manifest.
+          provenance: false
+          sbom: false
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest

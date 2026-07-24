@@ -15,8 +15,6 @@ spec:
       labels:
         app: gblog
     spec:
-      imagePullSecrets:
-        - name: ghcr-secret
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
