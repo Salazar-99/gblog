@@ -4,7 +4,18 @@ This is the source code for my personal website and blog at [gerardosalazar.com]
 
 It's a Next.js app with `shadcn` components and MDX for content.
 
-It's currently deployed on [my single-node kubernetes cluster](https://github.com/Salazar-99/gnode) and has CI/CD configured via GitHub Actions and Azure Container Registry (see `.github/workflows/deploy.yaml`).
+It's currently deployed on [my single-node kubernetes cluster](https://github.com/Salazar-99/gnode).
+
+## Deploying
+
+Pushes to `main` build the image and publish it to the GitHub Container Registry as `ghcr.io/salazar-99/gblog`, tagged with both a `YYYYmmdd-HHMMSS` timestamp and `latest` (see `.github/workflows/publish.yaml`). Deploys are manual — the run summary prints the exact tag:
+
+```bash
+kubectl set image deployment/gblog gblog=ghcr.io/salazar-99/gblog:<tag> -n apps
+kubectl rollout status deployment/gblog -n apps
+```
+
+`k8s.yaml` holds the Deployment, Service, and a Traefik Ingress for `gerardosalazar.com` (HTTP only, no TLS termination).
 
 ## Adding a blog post
 

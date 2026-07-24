@@ -1,0 +1,75 @@
+name: Build and Publish Image
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  # Must be lowercase — the registry rejects uppercase repository names.
+  IMAGE_NAME: salazar-99/gblog
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate image tag
+        id: tag
+        run: |
+          TAG=$(date +'%Y%m%d-%H%M%S')
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Generated tag: $TAG"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          # Links the GHCR package to this repo, so it shows on the repo page
+          # and inherits repo-based access.
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Summarize published image
+        run: |
+          IMAGE_TAG="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.tag }}"
+
+          {
+            echo "### Published image"
+            echo
+            echo '```'
+            echo "$IMAGE_TAG"
+            echo '```'
+            echo
+            echo "Deploy it with:"
+            echo
+            echo '```'
+            echo "kubectl set image deployment/gblog gblog=$IMAGE_TAG -n apps"
+            echo '```'
+          } >> $GITHUB_STEP_SUMMARY

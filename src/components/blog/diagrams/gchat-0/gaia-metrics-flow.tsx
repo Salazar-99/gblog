@@ -1,5 +1,5 @@
 import { BlogDiagram } from "@/components/blog/blog-diagram";
-import { DiagramArrowMarker, FlowArrow } from "@/components/blog/diagrams/flow-arrow";
+import { DiagramArrowMarker, FlowArrow } from "@/components/blog/diagrams/gchat-0/flow-arrow";
 
 const ARROW_MARKER_ID = "gaia-metrics-flow-arrow";
 

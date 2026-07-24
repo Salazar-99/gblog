@@ -16,14 +16,14 @@ spec:
         app: gblog
     spec:
       imagePullSecrets:
-        - name: acr-secret
+        - name: ghcr-secret
       securityContext:
         runAsUser: 1001
         runAsGroup: 1001
         fsGroup: 1001
       containers:
         - name: gblog
-          image: gimages.azurecr.io/gblog:20260105-043438
+          image: ghcr.io/salazar-99/gblog:latest
           ports:
             - name: http
               containerPort: 8080
@@ -73,4 +73,41 @@ spec:
       port: 80
       targetPort: 8080
       protocol: TCP
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gerardosalazar-com
+  namespace: apps
+  labels:
+    app: gblog
+  annotations:
+    # Plain HTTP only. TLS terminates at Cloudflare's edge; traffic inside the
+    # tunnel is unencrypted, so there is no `tls:` block and no cert-manager.
+    traefik.ingress.kubernetes.io/router.entrypoints: web
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: gerardosalazar.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gerardosalazar-com-service
+                port:
+                  number: 80
+    # The www DNS record exists too, and the apex rule above will not match it.
+    - host: www.gerardosalazar.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gerardosalazar-com-service
+                port:
+                  number: 80
 

@@ -6,6 +6,7 @@ const postModules: Record<
   () => Promise<{ default: ComponentType }>
 > = {
   "gchat-0": () => import("@/content/blog/gchat-0.mdx"),
+  grl: () => import("@/content/blog/grl.mdx"),
   gnode: () => import("@/content/blog/gnode.mdx"),
 };
 

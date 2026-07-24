@@ -8,6 +8,12 @@ export interface BlogPost {
 /** Add new posts here; pair each slug with `src/content/blog/<slug>.mdx`. */
 export const blogPosts: BlogPost[] = [
   {
+    slug: "grl",
+    title: "grl",
+    description: "A Distributed Async RL System From Scratch",
+    date: "2026-06-03",
+  },
+  {
     slug: "gchat-0",
     title: "gchat-0: The Origin Story",
     description:

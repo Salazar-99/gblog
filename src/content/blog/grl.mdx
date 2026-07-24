@@ -1,0 +1,39 @@
+# grl
+2026-06-
+
+Use citation numbers and a References section to show I did my rsearch
+Add code examples with code links to the actual repo
+
+Build up intuition from a single node, single turn task to multi-node multi-turn tasks
+
+
+## Goals and Constraints
+Different constraints from single node to multi-node to multi-region and how this requires different approaches e.g. sparse weight transfer
+How to make the system more fault-tolerant, e.g. atleast once processing, process crashes, durable checkpoints
+
+## Infra
+Talk about:
+- mapping training code to ray actors to docker images to worker groups in ray cluster config
+- warming up the cluster by caching environments with a daemonset
+- setting up the cluster for observability from the start
+- Show diagram building from nodes to cluster to ray etc
+- How rollouts are routed to the same Node/pod/VM for stateful multi-turn environments
+- Spin up the cluster once then use the launcher to kick off different training runs on it
+
+## Environments
+Talk about
+- how the dual-layer firecracker VM approach and ephemeral disk/snapshots make this more efficient
+- How the server manages these environments
+
+## Training Loop
+- Note limitations on AWS networking and g5 instances for syncing weights e.g. no RDMA, no NVLink, ENA vs EFA
+
+## Results
+
+## Future Improvements
+In a massive, distributed RL environment, thousands of sandboxes might be "waiting" for an LLM to finish inference on a GPU node before the next turn happens. Keeping 1 GiB of RAM allocated to an idle VM kills your density.
+To combat this, production systems use two distinct features of Firecracker's architecture to cheat the memory limits: The Virtio-Balloon and High-Frequency Snapshotting
+
+Rather than a DaemonSet to pull images locally which requires restarting to sync, create a container that syncs periodically so new envs can be loaded automatically
+
+Add support for more cloud backends
